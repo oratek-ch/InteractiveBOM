@@ -317,6 +317,7 @@ canvas:active {
   background-repeat: no-repeat;
 }
 
+
 .dark .searchbox {
   background-color: #111;
   color: #eee;
@@ -327,6 +328,33 @@ canvas:active {
 }
 
 .dark .searchbox::placeholder {
+  color: #666;
+}
+
+.selectbox {
+  float: left;
+  height: 40px;
+  margin: 5px 5px;
+  font-family: Consolas, "DejaVu Sans Mono", Monaco, monospace;
+  font-size: 18px;
+  box-sizing: border-box;
+  border: 1px solid #888;
+  border-radius: 6px;
+  outline: none;
+  background-color: #eee;
+  transition: background-color 0.2s, border 0.2s;
+}
+
+.dark .selectbox {
+  background-color: #111;
+  color: #eee;
+}
+
+.selectbox::placeholder {
+  color: #ccc;
+}
+
+.dark .selectbox::placeholder {
   color: #666;
 }
 

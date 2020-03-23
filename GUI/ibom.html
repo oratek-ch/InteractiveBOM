@@ -10,7 +10,7 @@
   <!-- This is a really hacky way to import the json data from
   an external file. Need to find a way to do this at the javascript level and
   not the html level -->
-  <script type="text/javascript" src="roboteq155v7.json"></script>
+  <!-- <script type="text/javascript" src="roboteq155v7.json"></script> -->
 </head>
 
 <body>
@@ -82,12 +82,13 @@
               </td>
             </tr>
             <tr>
-              <td id="company">
-                Eagle version
-              </td>
               <td id="filedate">
                 Date
               </td>
+              <td id="company">
+                Eagle version
+              </td>
+
             </tr>
           </tbody>
         </table>
@@ -96,8 +97,10 @@
     <div id="bot" class="split" style="height: calc(100% - 80px)">
       <div id="bomdiv" class="split split-horizontal">
         <div style="width: 100%">
-          <!-- <select id="files">
-          </select> -->
+          <select id="files" class="selectbox">
+            <option value="roboteq155v7">Roboteq 155 v7</option>
+            <option value="secumain93v7">SecuMain 93 v7</option>
+          </select>
           <input id="filter" class="searchbox filter hideonprint" type="text" placeholder="Filter">
           <button id="clearSearch" class="btn-clear" type="button" title="Clear Filter">X</button>
         </div>

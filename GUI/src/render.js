@@ -1,8 +1,7 @@
 /* PCB rendering code */
 
 var globalData = require('./global.js')
-
-
+var pcbdata = require('./pcbdata.js')
 
 
 //REMOVE: Using to test alternate placed coloring
@@ -84,8 +83,7 @@ function drawedge(ctx, scalefactor, edge, color) {
   ctx.strokeStyle = color;
   ctx.lineWidth = Math.max(1 / scalefactor, edge.width);
   ctx.lineCap = "round";
-  if (edge.type == "segment") 
-  {
+  if (edge.type == "segment") {
     ctx.beginPath();
     ctx.moveTo(...edge.start);
     ctx.lineTo(...edge.end);
@@ -133,8 +131,7 @@ function drawOblong(ctx, color, size, ctxmethod) {
 
 function drawPolygons(ctx, color, polygons, ctxmethod) {
   ctx.fillStyle = color;
-  if(polygons.length>0)
-  {
+  if (polygons.length > 0) {
     for (var polygon of polygons) {
       ctx.beginPath();
       for (var vertex of polygon) {
@@ -216,7 +213,7 @@ function drawModule(ctx, layer, scalefactor, module, padcolor, outlinecolor, hig
       ctx.globalAlpha = 0.2;
       ctx.translate(...module.bbox.pos);
       ctx.fillStyle = padcolor;
-      ctx.fillRect(0, 0,...module.bbox.size);
+      ctx.fillRect(0, 0, ...module.bbox.size);
       ctx.globalAlpha = 1;
       ctx.strokeStyle = padcolor;
       ctx.strokeRect(
@@ -235,10 +232,9 @@ function drawModule(ctx, layer, scalefactor, module, padcolor, outlinecolor, hig
   for (var pad of module.pads) {
     if (pad.layers.includes(layer)) {
       drawPad(ctx, pad, padcolor, false);
-      
-      
-      if (pad.pin1 && globalData.getHighlightPin1()) 
-      {
+
+
+      if (pad.pin1 && globalData.getHighlightPin1()) {
         drawPad(ctx, pad, outlinecolor, true);
       }
     }
@@ -261,7 +257,7 @@ function drawModules(canvas, layer, scalefactor, highlightedRefs) {
   // it is then the system will be split the string. This is kinda a hacky way to resolve the 
   // issue. This will only be true if the string has more than one character. 
   //TODO: change the reference variable from a string to an array. This needs to be done in ibom.js
-  if(highlightedRefs.length>0){
+  if (highlightedRefs.length > 0) {
     highlightedRefs = highlightedRefs.split(',');
   }
 
@@ -270,17 +266,14 @@ function drawModules(canvas, layer, scalefactor, highlightedRefs) {
   var style = getComputedStyle(topmostdiv);
   var padcolor = style.getPropertyValue('--pad-color');
   var outlinecolor = style.getPropertyValue('--pin1-outline-color');
-  if (highlightedRefs.length > 0) 
-  {
-    if(isPlaced)
-    {
-        padcolor = style.getPropertyValue('--pad-color-highlight-selected');
-        outlinecolor = style.getPropertyValue('--pin1-outline-color-highlight-selected');
+  if (highlightedRefs.length > 0) {
+    if (isPlaced) {
+      padcolor = style.getPropertyValue('--pad-color-highlight-selected');
+      outlinecolor = style.getPropertyValue('--pin1-outline-color-highlight-selected');
     }
-    else
-    {
-        padcolor = style.getPropertyValue('--pad-color-highlight');
-        outlinecolor = style.getPropertyValue('--pin1-outline-color-highlight');
+    else {
+      padcolor = style.getPropertyValue('--pad-color-highlight');
+      outlinecolor = style.getPropertyValue('--pin1-outline-color-highlight');
     }
   }
   for (var i in pcbdata.modules) {
@@ -293,21 +286,16 @@ function drawModules(canvas, layer, scalefactor, highlightedRefs) {
   }
 }
 
-function drawSilkscreen(canvas, layer, scalefactor)
-{
+function drawSilkscreen(canvas, layer, scalefactor) {
   var ctx = canvas.getContext("2d");
-  for (var d of pcbdata.silkscreen[layer])
-  {
-    if (["segment", "arc", "circle"].includes(d.type))
-    {
+  for (var d of pcbdata.silkscreen[layer]) {
+    if (["segment", "arc", "circle"].includes(d.type)) {
       drawedge(ctx, scalefactor, d, "#aa4");
     }
-    else if (d.type == "polygon")
-    {
+    else if (d.type == "polygon") {
       drawPolygonShape(ctx, d, "#4aa");
     }
-    else
-    {
+    else {
       drawtext(ctx, d, "#4aa", layer == "B");
     }
   }
@@ -327,9 +315,8 @@ function drawHighlightsOnLayer(canvasdict) {
     canvasdict.transform.s, globalData.getHighlightedRefs());
 }
 
-function drawHighlights(passed) 
-{
-  isPlaced=passed;
+function drawHighlights(passed) {
+  isPlaced = passed;
   drawHighlightsOnLayer(allcanvas.front);
   drawHighlightsOnLayer(allcanvas.back);
 }
@@ -391,7 +378,7 @@ function recalcLayerScale(canvasdict) {
   var canvasdivid = {
     "F": "frontcanvas",
     "B": "backcanvas"
-  } [canvasdict.layer];
+  }[canvasdict.layer];
   var width = document.getElementById(canvasdivid).clientWidth * 2;
   var height = document.getElementById(canvasdivid).clientHeight * 2;
   var bbox = applyRotation(pcbdata.edges_bbox);
@@ -442,7 +429,7 @@ function bboxScan(layer, x, y, transform) {
     if (module.layer == layer) {
       var b = module.bbox;
       if (b.pos[0] <= x && b.pos[0] + b.size[0] >= x &&
-          b.pos[1] <= y && b.pos[1] + b.size[1] >= y) {
+        b.pos[1] <= y && b.pos[1] + b.size[1] >= y) {
         result.push(module.ref);
       }
     }
@@ -570,27 +557,27 @@ function handleMouseWheel(e, layerdict) {
 }
 
 function addMouseHandlers(div, layerdict) {
-  div.onmouseclick = function(e){
+  div.onmouseclick = function (e) {
     handleMouseClick(e, layerdict);
   }
 
-  div.onmousedown = function(e) {
+  div.onmousedown = function (e) {
     handleMouseDown(e, layerdict);
   };
-  div.onmousemove = function(e) {
+  div.onmousemove = function (e) {
     handleMouseMove(e, layerdict);
   };
-  div.onmouseup = function(e) {
+  div.onmouseup = function (e) {
     handleMouseUp(e, layerdict);
   };
-  div.onmouseout = function(e) {
+  div.onmouseout = function (e) {
     handleMouseUp(e, layerdict);
   }
-  div.onwheel = function(e) {
+  div.onwheel = function (e) {
     handleMouseWheel(e, layerdict);
   }
   for (var element of [div, layerdict.bg, layerdict.silk, layerdict.highlight]) {
-    element.addEventListener("contextmenu", function(e) {
+    element.addEventListener("contextmenu", function (e) {
       e.preventDefault();
     }, false);
   }

@@ -2,38 +2,38 @@
               Board Rotation                    
 *************************************************/
 var storage
-var storagePrefix = 'KiCad_HTML_BOM__' + pcbdata.metadata.title + '__' + pcbdata.metadata.revision + '__'
+var storagePrefix = 'KiCad_HTML_BOM__'
 
-function initStorage (key) {
-  try {
-    window.localStorage.getItem("blank");
-    storage = window.localStorage;
-  } catch (e) {
-    console.log("Storage init error");
-    // localStorage not available
-  }
-  if (!storage) {
+function initStorage(key) {
     try {
-      window.sessionStorage.getItem("blank");
-      storage = window.sessionStorage;
+        window.localStorage.getItem("blank");
+        storage = window.localStorage;
     } catch (e) {
-      // sessionStorage also not available
+        console.log("Storage init error");
+        // localStorage not available
     }
-  }
+    if (!storage) {
+        try {
+            window.sessionStorage.getItem("blank");
+            storage = window.sessionStorage;
+        } catch (e) {
+            // sessionStorage also not available
+        }
+    }
 }
 
 function readStorage(key) {
-  if (storage) {
-    return storage.getItem(storagePrefix + '#' + key);
-  } else {
-    return null;
-  }
+    if (storage) {
+        return storage.getItem(storagePrefix + '#' + key);
+    } else {
+        return null;
+    }
 }
 
 function writeStorage(key, value) {
-  if (storage) {
-    storage.setItem(storagePrefix + '#' + key, value);
-  }
+    if (storage) {
+        storage.setItem(storagePrefix + '#' + key, value);
+    }
 }
 
 /************************************************/
@@ -43,11 +43,11 @@ function writeStorage(key, value) {
 *************************************************/
 var highlightedRefs = "";
 
-function setHighlightedRefs(refs){
+function setHighlightedRefs(refs) {
     highlightedRefs = refs;
 }
 
-function getHighlightedRefs(){
+function getHighlightedRefs() {
     return highlightedRefs;
 }
 /************************************************/
@@ -57,13 +57,13 @@ function getHighlightedRefs(){
 *************************************************/
 var redrawOnDrag = true;
 
-  
-function setRedrawOnDrag(value){
+
+function setRedrawOnDrag(value) {
     redrawOnDrag = value;
     writeStorage("redrawOnDrag", value);
 }
 
-function getRedrawOnDrag(){
+function getRedrawOnDrag() {
     return redrawOnDrag;
 }
 
@@ -74,15 +74,15 @@ BOM Split
 *************************************************/
 var bomsplit;
 
-function setBomSplit(value){
+function setBomSplit(value) {
     bomsplit = value;
 }
 
-function getBomSplit(){
+function getBomSplit() {
     return bomsplit;
 }
 
-function destroyBomSplit(){
+function destroyBomSplit() {
     bomsplit.destroy()
 }
 
@@ -93,24 +93,23 @@ Canvas Split
 *************************************************/
 var canvassplit;
 
-function setCanvasSplit(value){
+function setCanvasSplit(value) {
     canvassplit = value;
 }
 
-function getCanvasSplit(){
+function getCanvasSplit() {
     return canvassplit;
 }
 
-function destroyCanvasSplit(){
+function destroyCanvasSplit() {
     canvassplit.destroy()
 }
 
-function collapseCanvasSplit(value)
-{
+function collapseCanvasSplit(value) {
     canvassplit.collapse(value);
 }
 
-function setSizesCanvasSplit(value){
+function setSizesCanvasSplit(value) {
     canvassplit.setSizes([50, 50]);
 }
 
@@ -130,8 +129,8 @@ So no is check that if default is sent in then set the layout to FB mode.
 is in one of the three valid states. If not then set to FB, otherwise set to one of
 the three valid states
 */
-function setCanvasLayout(value){
-    if(value == 'default'){
+function setCanvasLayout(value) {
+    if (value == 'default') {
         canvaslayout = 'FB'
     }
     else {
@@ -139,7 +138,7 @@ function setCanvasLayout(value){
     }
 }
 
-function getCanvasLayout(){
+function getCanvasLayout() {
     return canvaslayout;
 }
 
@@ -150,12 +149,27 @@ BOM Layout
 *************************************************/
 var bomlayout = "default";
 
-function setBomLayout(value){
+function setBomLayout(value) {
     bomlayout = value;
 }
 
-function getBomLayout(){
+function getBomLayout() {
     return bomlayout;
+}
+
+/************************************************/
+
+/*************************************************
+Source
+*************************************************/
+var source = "";
+
+function setSource(value) {
+    source = value;
+}
+
+function getSource() {
+    return source;
 }
 
 /************************************************/
@@ -165,11 +179,11 @@ BOM Sort Function
 *************************************************/
 var bomSortFunction = null;
 
-function setBomSortFunction(value){
+function setBomSortFunction(value) {
     bomSortFunction = value;
 }
 
-function getBomSortFunction(){
+function getBomSortFunction() {
     return bomSortFunction;
 }
 
@@ -180,11 +194,11 @@ Current Sort Column
 *************************************************/
 var currentSortColumn = null;
 
-function setCurrentSortColumn(value){
+function setCurrentSortColumn(value) {
     currentSortColumn = value;
 }
 
-function getCurrentSortColumn(){
+function getCurrentSortColumn() {
     return currentSortColumn;
 }
 
@@ -195,11 +209,11 @@ Current Sort Order
 *************************************************/
 var currentSortOrder = null;
 
-function setCurrentSortOrder(value){
+function setCurrentSortOrder(value) {
     currentSortOrder = value;
 }
 
-function getCurrentSortOrder(){
+function getCurrentSortOrder() {
     return currentSortOrder;
 }
 
@@ -210,11 +224,11 @@ Current Highlighted Row ID
 *************************************************/
 var currentHighlightedRowId;
 
-function setCurrentHighlightedRowId(value){
+function setCurrentHighlightedRowId(value) {
     currentHighlightedRowId = value;
 }
 
-function getCurrentHighlightedRowId(){
+function getCurrentHighlightedRowId() {
     return currentHighlightedRowId;
 }
 
@@ -225,15 +239,15 @@ Highlight Handlers
 *************************************************/
 var highlightHandlers = [];
 
-function setHighlightHandlers(values){
+function setHighlightHandlers(values) {
     highlightHandlers = values;
 }
 
-function getHighlightHandlers(){
+function getHighlightHandlers() {
     return highlightHandlers;
 }
 
-function pushHighlightHandlers(value){
+function pushHighlightHandlers(value) {
     highlightHandlers.push(value);
 }
 
@@ -244,11 +258,11 @@ Checkboxes
 *************************************************/
 var checkboxes = [];
 
-function setCheckboxes(values){
+function setCheckboxes(values) {
     checkboxes = values;
 }
 
-function getCheckboxes(){
+function getCheckboxes() {
     return checkboxes;
 }
 
@@ -259,11 +273,11 @@ BOM Checkboxes
 *************************************************/
 var bomCheckboxes = "";
 
-function setBomCheckboxes(values){
+function setBomCheckboxes(values) {
     bomCheckboxes = values;
 }
 
-function getBomCheckboxes(){
+function getBomCheckboxes() {
     return bomCheckboxes;
 }
 /************************************************/
@@ -273,11 +287,11 @@ Remove BOM Entries
 *************************************************/
 var removeBOMEntries = "";
 
-function setRemoveBOMEntries(values){
+function setRemoveBOMEntries(values) {
     removeBOMEntries = values;
 }
 
-function getRemoveBOMEntries(){
+function getRemoveBOMEntries() {
     return removeBOMEntries;
 }
 /************************************************/
@@ -288,11 +302,11 @@ Remove BOM Entries
 *************************************************/
 var additionalAttributes = "";
 
-function setAdditionalAttributes(values){
+function setAdditionalAttributes(values) {
     additionalAttributes = values;
 }
 
-function getAdditionalAttributes(){
+function getAdditionalAttributes() {
     return additionalAttributes;
 }
 /************************************************/
@@ -304,11 +318,11 @@ Highlight Pin 1
 var highlightpin1 = false;
 
 function setHighlightPin1(value) {
-  writeStorage("highlightpin1", value);
-  highlightpin1 = value;
+    writeStorage("highlightpin1", value);
+    highlightpin1 = value;
 }
 
-function getHighlightPin1(){
+function getHighlightPin1() {
     return highlightpin1;
 }
 
@@ -324,7 +338,7 @@ function setLastClickedRef(value) {
 }
 
 function getLastClickedRef() {
-  return lastClickedRef;
+    return lastClickedRef;
 }
 
 /************************************************/
@@ -336,11 +350,11 @@ Combine Values
 var combineValues = false;
 
 function setCombineValues(value) {
-  writeStorage("combineValues", value);
-  combineValues = value;
+    writeStorage("combineValues", value);
+    combineValues = value;
 }
 
-function getCombineValues(){
+function getCombineValues() {
     return combineValues;
 }
 /************************************************/
@@ -353,35 +367,36 @@ Combine Values
 var hidePlacedParts = false;
 
 function setHidePlacedParts(value) {
-  writeStorage("hidePlacedParts", value);
-  hidePlacedParts = value;
+    writeStorage("hidePlacedParts", value);
+    hidePlacedParts = value;
 }
 
-function getHidePlacedParts(){
+function getHidePlacedParts() {
     return hidePlacedParts;
 }
 /************************************************/
 
 
 module.exports = {
-  initStorage                , readStorage                , writeStorage       ,
-  setHighlightedRefs         , getHighlightedRefs         ,
-  setRedrawOnDrag            , getRedrawOnDrag            ,
-  setBomSplit                , getBomSplit                , destroyBomSplit    ,
-  setCanvasSplit             , getCanvasSplit             , destroyCanvasSplit , collapseCanvasSplit , setSizesCanvasSplit,
-  setCanvasLayout            , getCanvasLayout            ,
-  setBomLayout               , getBomLayout               ,
-  setBomSortFunction         , getBomSortFunction         ,
-  setCurrentSortColumn       , getCurrentSortColumn       ,
-  setCurrentSortOrder        , getCurrentSortOrder        ,
-  setCurrentHighlightedRowId , getCurrentHighlightedRowId ,
-  setHighlightHandlers       , getHighlightHandlers       , pushHighlightHandlers ,
-  setCheckboxes              , getCheckboxes              ,
-  setBomCheckboxes           , getBomCheckboxes           ,
-  setRemoveBOMEntries        , getRemoveBOMEntries        ,
-  setAdditionalAttributes    , getAdditionalAttributes    ,
-  setHighlightPin1           , getHighlightPin1           ,
-  setLastClickedRef          , getLastClickedRef          ,
-  setCombineValues           , getCombineValues           ,
-  setHidePlacedParts         , getHidePlacedParts
+    initStorage, readStorage, writeStorage,
+    setHighlightedRefs, getHighlightedRefs,
+    setRedrawOnDrag, getRedrawOnDrag,
+    setBomSplit, getBomSplit, destroyBomSplit,
+    setCanvasSplit, getCanvasSplit, destroyCanvasSplit, collapseCanvasSplit, setSizesCanvasSplit,
+    setCanvasLayout, getCanvasLayout,
+    setBomLayout, getBomLayout,
+    setSource, getSource,
+    setBomSortFunction, getBomSortFunction,
+    setCurrentSortColumn, getCurrentSortColumn,
+    setCurrentSortOrder, getCurrentSortOrder,
+    setCurrentHighlightedRowId, getCurrentHighlightedRowId,
+    setHighlightHandlers, getHighlightHandlers, pushHighlightHandlers,
+    setCheckboxes, getCheckboxes,
+    setBomCheckboxes, getBomCheckboxes,
+    setRemoveBOMEntries, getRemoveBOMEntries,
+    setAdditionalAttributes, getAdditionalAttributes,
+    setHighlightPin1, getHighlightPin1,
+    setLastClickedRef, getLastClickedRef,
+    setCombineValues, getCombineValues,
+    setHidePlacedParts, getHidePlacedParts
 };

@@ -5,7 +5,7 @@ var Split = require('../vender/split.js')
 var globalData = require('./global.js')
 var render = require('./render.js')
 var pcb = require('./pcb.js')
-
+var pcbdata = require('./pcbdata.js')
 
 //TODO:  GLOBAL VARIABLE REFACTOR
 var filter = "";
@@ -56,15 +56,24 @@ function createClickHandler(bomentry) {
     Http.open("GET", url);
     // Http.setRequestHeader('Access-Control-Allow-Origin', '*');
     Http.onreadystatechange = (e) => {
-      console.log(Http.responseText);
-      const res = JSON.parse(Http.responseText).manufacturerPartNumberSearchReturn;
-      if (res.numberOfResults == 0) {
-        alert(`Couldn't find reference ${bomentry.value} on fr.farnell.com website!`);
-      } else {
-        const p = res.products[0];
-        var win = window.open(`https://fr.farnell.com/${p.sku}`, '_blank');
-        if (win) {
-          win.focus();
+      // In local files, status is 0 upon success in Mozilla Firefox
+      if (Http.readyState === XMLHttpRequest.DONE) {
+        var status = Http.status;
+        if (status === 0 || (status >= 200 && status < 400)) {
+          // The request has been completed successfully
+          console.log(Http.responseText);
+          const res = JSON.parse(Http.responseText).manufacturerPartNumberSearchReturn;
+          if (res.numberOfResults == 0) {
+            alert(`Couldn't find reference ${bomentry.value} on fr.farnell.com website!`);
+          } else {
+            const p = res.products[0];
+            var win = window.open(`https://fr.farnell.com/${p.sku}`, '_blank');
+            if (win) {
+              win.focus();
+            }
+          }
+        } else {
+          // Oh no! There has been an error with the request!
         }
       }
     };
@@ -426,22 +435,21 @@ function populateBomBody() {
       }
     }
 
-    var clickHandler = createClickHandler(bomentry);
-
     //INFO: The lines below add the control the columns on the bom table
     // References
     td = document.createElement("TD");
     td.innerHTML = highlightFilter(bomentry.value);
-    td.onclick = clickHandler;
+    td.onclick = createClickHandler(bomentry);
     tr.appendChild(td);
     // Value
     td = document.createElement("TD");
     td.innerHTML = highlightFilter(bomentry.value);
-    td.onclick = clickHandler;
+    td.onclick = createClickHandler(bomentry);
     tr.appendChild(td);
     // Footprint
     td = document.createElement("TD");
     td.innerHTML = highlightFilter(bomentry.package);
+    td.onclick = createClickHandler(bomentry);
     tr.appendChild(td);
 
     // Attributes
@@ -576,27 +584,25 @@ function changeCanvasLayout(layout) {
   populateBomTable();
 }
 
-// function populateFileSelector() {
-//   var newSelect = document.getElementById("files");
+function createSelectSourceHandler() {
+  return function () {
+    var x = document.getElementById("files").value;
+    localStorage.setItem("KiCad_HTML_BOM__#source", x);
+    location = location;
+  }
+}
 
-//   let index = 0;
-//   for (element in ["pcbdata.json", "pcbdata.json"]) {
-//     var opt = document.createElement("option");
-//     opt.value = index;
-//     opt.innerHTML = element; // whatever property it has
-
-//     // then append it to the select element
-//     newSelect.appendChild(opt);
-//     index++;
-//   }
-// }
+function populateFileSelector() {
+  var newSelect = document.getElementById("files");
+  newSelect.onchange = createSelectSourceHandler();
+}
 
 function populateMetadata() {
   var metadata = pcb.GetMetadata();
 
   if (metadata.revision == "") {
-    document.getElementById("title").innerHTML = ""
-    document.getElementById("revision").innerHTML = metadata.title;
+    document.getElementById("title").innerHTML = metadata.title;
+    document.getElementById("revision").innerHTML = "";
   }
   else {
     document.getElementById("title").innerHTML = metadata.title;
@@ -842,8 +848,14 @@ window.onload = function (e) {
   if (!globalData.getCanvasLayout()) {
     globalData.setCanvasLayout("FB");
   }
+  globalData.setSource(globalData.readStorage("source"));
+  if (!globalData.getSource()) {
+    console.log('IIIIIN', '')
+    globalData.setSource("roboteq155v7");
+    globalData.writeStorage("source", "roboteq155v7");
+  }
 
-  // populateFileSelector();
+  populateFileSelector();
   populateMetadata();
   globalData.setBomCheckboxes(globalData.readStorage("bomCheckboxes"));
   if (globalData.getBomCheckboxes() === null) {
@@ -893,6 +905,8 @@ window.onload = function (e) {
   }
   document.getElementById("boardRotation").value = boardRotation / 5;
   document.getElementById("rotationDegree").textContent = boardRotation;
+  document.getElementById("files").value = globalData.readStorage("source");
+
   // Triggers render
   changeBomLayout(globalData.getBomLayout());
 }
