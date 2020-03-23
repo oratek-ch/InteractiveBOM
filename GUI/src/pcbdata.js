@@ -1,5 +1,6 @@
 var roboteq155v7 = require('../roboteq155v7.json');
 var secumain93V7 = require('../secumain93v7.json');
+var roboteqv9162 = require('../roboteqv9162.json');
 
 var source = localStorage.getItem('KiCad_HTML_BOM__#source');
 if (!source) {
@@ -15,6 +16,9 @@ switch (source) {
         break;
     case "secumain93v7":
         pcb = secumain93V7;
+        break;
+    case "roboteqv9162":
+        pcb = roboteqv9162;
         break;
     default:
         break;
