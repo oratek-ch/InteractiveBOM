@@ -4,7 +4,7 @@
 var Split = require('../vender/split.js')
 var globalData = require('./global.js')
 var render = require('./render.js')
-var pcb    = require('./pcb.js')
+var pcb = require('./pcb.js')
 
 
 //TODO:  GLOBAL VARIABLE REFACTOR
@@ -35,24 +35,45 @@ function setDarkMode(value) {
 
 
 function createCheckboxChangeHandler(checkbox, bomentry) {
-    return function() 
-    {
-        if(bomentry.checkboxes.get(checkbox))
-        {
-            bomentry.checkboxes.set(checkbox,false);
-            globalData.writeStorage("checkbox" + "_" + checkbox.toLowerCase() + "_" + bomentry.reference, "false");
-        }
-        else
-        {
-            bomentry.checkboxes.set(checkbox,true);
-             globalData.writeStorage("checkbox" + "_" + checkbox.toLowerCase() + "_" + bomentry.reference, "true");
-        }
-       
+  return function () {
+    if (bomentry.checkboxes.get(checkbox)) {
+      bomentry.checkboxes.set(checkbox, false);
+      globalData.writeStorage("checkbox" + "_" + checkbox.toLowerCase() + "_" + bomentry.reference, "false");
     }
+    else {
+      bomentry.checkboxes.set(checkbox, true);
+      globalData.writeStorage("checkbox" + "_" + checkbox.toLowerCase() + "_" + bomentry.reference, "true");
+    }
+
+  }
+}
+
+function createClickHandler(bomentry) {
+  return function () {
+    // alert('Row clicked ' + bomentry.value);
+    const Http = new XMLHttpRequest();
+    const url = `https://cors-anywhere.herokuapp.com/https://api.element14.com/catalog/products?callInfo.responseDataFormat=JSON&term=manuPartNum:${bomentry.value}&storeInfo.id=fr.farnell.com&callInfo.apiKey=v4hqtkwq6j9rasxcqfwrz5c2&resultsSettings.responseGroup=small`;
+    Http.open("GET", url);
+    // Http.setRequestHeader('Access-Control-Allow-Origin', '*');
+    Http.onreadystatechange = (e) => {
+      console.log(Http.responseText);
+      const res = JSON.parse(Http.responseText).manufacturerPartNumberSearchReturn;
+      if (res.numberOfResults == 0) {
+        alert(`Couldn't find reference ${bomentry.value} on fr.farnell.com website!`);
+      } else {
+        const p = res.products[0];
+        var win = window.open(`https://fr.farnell.com/${p.sku}`, '_blank');
+        if (win) {
+          win.focus();
+        }
+      }
+    };
+    Http.send();
+  }
 }
 
 function createRowHighlightHandler(rowid, refs) {
-  return function() {
+  return function () {
     if (globalData.getCurrentHighlightedRowId()) {
       if (globalData.getCurrentHighlightedRowId() == rowid) {
         return;
@@ -70,29 +91,29 @@ function createRowHighlightHandler(rowid, refs) {
 function entryMatches(part) {
   // check refs
   if (part.reference.toLowerCase().indexOf(getFilter()) >= 0) {
-      return true;
-    }
+    return true;
+  }
   // check value
-  if (part.value.toLowerCase().indexOf(getFilter())>= 0) {
+  if (part.value.toLowerCase().indexOf(getFilter()) >= 0) {
     return true;
   }
   // check footprint
-  if (part.package.toLowerCase().indexOf(getFilter())>= 0) {
+  if (part.package.toLowerCase().indexOf(getFilter()) >= 0) {
     return true;
   }
 
   // Check the displayed attributes
   var additionalAttributes = globalData.getAdditionalAttributes().split(',');
-  additionalAttributes     = additionalAttributes.filter(function(e){return e});
+  additionalAttributes = additionalAttributes.filter(function (e) { return e });
   for (var x of additionalAttributes) {
-      // remove beginning and trailing whitespace
-      x = x.trim()
-      if (part.attributes.has(x)) {
-        if(part.attributes.get(x).indexOf(getFilter()) >= 0){
-          return true;
-        }
+    // remove beginning and trailing whitespace
+    x = x.trim()
+    if (part.attributes.has(x)) {
+      if (part.attributes.get(x).indexOf(getFilter()) >= 0) {
+        return true;
       }
     }
+  }
 
   return false;
 }
@@ -130,9 +151,8 @@ function createColumnHeader(name, cls, comparator) {
   span.classList.add("sortmark");
   span.classList.add("none");
   th.appendChild(span);
-  th.onclick = function() {
-    if (globalData.getCurrentSortColumn() && this !== globalData.getCurrentSortColumn()) 
-    {
+  th.onclick = function () {
+    if (globalData.getCurrentSortColumn() && this !== globalData.getCurrentSortColumn()) {
       // Currently sorted by another column
       globalData.getCurrentSortColumn().childNodes[1].classList.remove(globalData.getCurrentSortOrder());
       globalData.getCurrentSortColumn().childNodes[1].classList.add("none");
@@ -140,22 +160,18 @@ function createColumnHeader(name, cls, comparator) {
       globalData.setCurrentSortOrder(null);
     }
 
-    if (globalData.getCurrentSortColumn() && this === globalData.getCurrentSortColumn()) 
-    {
+    if (globalData.getCurrentSortColumn() && this === globalData.getCurrentSortColumn()) {
       // Already sorted by this column
-      if (globalData.getCurrentSortOrder() == "asc") 
-      {
+      if (globalData.getCurrentSortOrder() == "asc") {
         // Sort by this column, descending order
-        globalData.setBomSortFunction(function(a, b) 
-        {
+        globalData.setBomSortFunction(function (a, b) {
           return -comparator(a, b);
         });
         globalData.getCurrentSortColumn().childNodes[1].classList.remove("asc");
         globalData.getCurrentSortColumn().childNodes[1].classList.add("desc");
         globalData.setCurrentSortOrder("desc");
-      } 
-      else 
-      {
+      }
+      else {
         // Unsort
         globalData.setBomSortFunction(null);
         globalData.getCurrentSortColumn().childNodes[1].classList.remove("desc");
@@ -163,9 +179,8 @@ function createColumnHeader(name, cls, comparator) {
         globalData.setCurrentSortColumn(null);
         globalData.setCurrentSortOrder(null);
       }
-    } 
-    else 
-    {
+    }
+    else {
       // Sort by this column, ascending order
       globalData.setBomSortFunction(comparator);
       globalData.setCurrentSortColumn(this);
@@ -179,42 +194,35 @@ function createColumnHeader(name, cls, comparator) {
 }
 
 // Describes how to sort checkboxes
-function CheckboxCompare(stringName)
-{
+function CheckboxCompare(stringName) {
   return (partA, partB) => {
-          if (partA.checkboxes.get(stringName) && !partB.checkboxes.get(stringName)) 
-          {
-              return  1;
-          }
-          else if (!partA.checkboxes.get(stringName) && partB.checkboxes.get(stringName)) 
-          {
-            return -1;
-          } 
-          else
-          {
-              return 0;
-          }
-        }
+    if (partA.checkboxes.get(stringName) && !partB.checkboxes.get(stringName)) {
+      return 1;
+    }
+    else if (!partA.checkboxes.get(stringName) && partB.checkboxes.get(stringName)) {
+      return -1;
+    }
+    else {
+      return 0;
+    }
+  }
 }
 
 // Describes hoe to sort by attributes
-function AttributeCompare(stringName)
-{
+function AttributeCompare(stringName) {
   return (partA, partB) => {
-          if (partA.attributes.get(stringName) != partB.attributes.get(stringName)) return  partA.attributes.get(stringName) > partB.attributes.get(stringName) ? 1 : -1;
-          else return 0;
-        }
+    if (partA.attributes.get(stringName) != partB.attributes.get(stringName)) return partA.attributes.get(stringName) > partB.attributes.get(stringName) ? 1 : -1;
+    else return 0;
+  }
 }
 
 
 
-function populateBomHeader() 
-{
-  while (bomhead.firstChild) 
-  {
+function populateBomHeader() {
+  while (bomhead.firstChild) {
     bomhead.removeChild(bomhead.firstChild);
   }
-  
+
   var tr = document.createElement("TR");
   var th = document.createElement("TH");
   th.classList.add("numCol");
@@ -222,20 +230,19 @@ function populateBomHeader()
 
 
   var additionalCheckboxes = globalData.getBomCheckboxes().split(",");
-  additionalCheckboxes     = additionalCheckboxes.filter(function(e){return e});
+  additionalCheckboxes = additionalCheckboxes.filter(function (e) { return e });
   globalData.setCheckboxes(additionalCheckboxes);
   for (var x2 of additionalCheckboxes) {
-      // remove beginning and trailing whitespace
-      x2 = x2.trim()
-      if (x2) 
-      {
-        tr.appendChild(createColumnHeader(x2, "Checkboxes", CheckboxCompare(x2)));
-      }
+    // remove beginning and trailing whitespace
+    x2 = x2.trim()
+    if (x2) {
+      tr.appendChild(createColumnHeader(x2, "Checkboxes", CheckboxCompare(x2)));
     }
+  }
 
   tr.appendChild(createColumnHeader("References", "References", (partA, partB) => {
-      if (partA.reference != partB.reference) return partA.reference > partB.reference ? 1 : -1;
-      else return 0;
+    if (partA.reference != partB.reference) return partA.reference > partB.reference ? 1 : -1;
+    else return 0;
   }));
 
   tr.appendChild(createColumnHeader("Value", "Value", (partA, partB) => {
@@ -250,18 +257,16 @@ function populateBomHeader()
 
   var additionalAttributes = globalData.getAdditionalAttributes().split(',');
   // Remove null, "", undefined, and 0 values
-  additionalAttributes    =additionalAttributes.filter(function(e){return e});
+  additionalAttributes = additionalAttributes.filter(function (e) { return e });
   for (var x of additionalAttributes) {
-      // remove beginning and trailing whitespace
-      x = x.trim()
-      if (x) 
-      {
-        tr.appendChild(createColumnHeader(x, "Attributes", AttributeCompare(x)));
-      }
+    // remove beginning and trailing whitespace
+    x = x.trim()
+    if (x) {
+      tr.appendChild(createColumnHeader(x, "Attributes", AttributeCompare(x)));
     }
+  }
 
-  if(globalData.getCombineValues())
-  {
+  if (globalData.getCombineValues()) {
     //XXX: This comparison function is using positive and negative implicit
     tr.appendChild(createColumnHeader("Quantity", "Quantity", (partA, partB) => {
       return partA.quantity - partB.quantity;
@@ -279,9 +284,9 @@ function populateBomHeader()
 // The filtering function should return true if the part should be filtered out
 // otherwise it returns false
 ////////////////////////////////////////////////////////////////////////////////
-function GetBOMForSideOfBoard(location){
+function GetBOMForSideOfBoard(location) {
   var result = pcb.GetBOM();
-    switch (location) {
+  switch (location) {
     case 'F':
       result = pcb.filterBOMTable(result, filterBOM_Front);
       break;
@@ -294,38 +299,36 @@ function GetBOMForSideOfBoard(location){
   return result;
 }
 
-function filterBOM_Front(part){
+function filterBOM_Front(part) {
   var result = true;
-  if(part.location == "F"){
+  if (part.location == "F") {
     result = false;
   }
   return result;
 }
 
-function filterBOM_Back(part){
+function filterBOM_Back(part) {
   var result = true;
-  if(part.location == "B"){
+  if (part.location == "B") {
     result = false;
   }
   return result;
 }
 
-function filterBOM_ByAttribute(part){
+function filterBOM_ByAttribute(part) {
   var result = false;
   var splitFilterString = globalData.getRemoveBOMEntries().split(',');
   // Remove null, "", undefined, and 0 values
-  splitFilterString    = splitFilterString.filter(function(e){return e});
+  splitFilterString = splitFilterString.filter(function (e) { return e });
 
-  if(splitFilterString.length > 0 )
-  {
-    for(var i of splitFilterString){
+  if (splitFilterString.length > 0) {
+    for (var i of splitFilterString) {
       // removing beginning and trailing whitespace
       i = i.trim()
-      if(part.attributes.has(i)){
+      if (part.attributes.has(i)) {
         // Id the value is an empty string then dont filter out the entry. 
         // if the value is anything then filter out the bom entry
-        if(part.attributes.get(i) != "")
-        {
+        if (part.attributes.get(i) != "") {
           result = true;
         }
       }
@@ -336,8 +339,7 @@ function filterBOM_ByAttribute(part){
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-function GenerateBOMTable()
-{
+function GenerateBOMTable() {
   // Get bom table with elements for the side of board the user has selected
   var bomtableTemp = GetBOMForSideOfBoard(globalData.getCanvasLayout());
 
@@ -371,23 +373,19 @@ function populateBomBody() {
     var references = bomentry.reference;
 
     // remove entries that do not match filter
-    if (getFilter() != "")
-    {
-        if(!entryMatches(bomentry))
-        {
-          continue;
-        }
+    if (getFilter() != "") {
+      if (!entryMatches(bomentry)) {
+        continue;
+      }
     }
-    
-    
+
+
     // Hide placed parts option is set
-    if(globalData.getHidePlacedParts())
-    {
-        // Remove entries that have been placed. Check the placed parameter
-        if(globalData.readStorage( "checkbox" + "_" + "placed" + "_" + bomentry.reference ) == "true")
-        {
-           continue;
-        }
+    if (globalData.getHidePlacedParts()) {
+      // Remove entries that have been placed. Check the placed parameter
+      if (globalData.readStorage("checkbox" + "_" + "placed" + "_" + bomentry.reference) == "true") {
+        continue;
+      }
     }
 
 
@@ -400,32 +398,26 @@ function populateBomBody() {
 
     // Checkboxes
     var additionalCheckboxes = globalData.getBomCheckboxes().split(",");
-    for (var checkbox of additionalCheckboxes) 
-    {
+    for (var checkbox of additionalCheckboxes) {
       checkbox = checkbox.trim();
-      if (checkbox) 
-      {
+      if (checkbox) {
         td = document.createElement("TD");
         var input = document.createElement("input");
         input.type = "checkbox";
         input.onchange = createCheckboxChangeHandler(checkbox, bomentry);
         // read the value in from local storage
 
-        if(globalData.readStorage( "checkbox" + "_" + checkbox.toLowerCase() + "_" + bomentry.reference ) == "true")
-        {
-             bomentry.checkboxes.set(checkbox,true)
+        if (globalData.readStorage("checkbox" + "_" + checkbox.toLowerCase() + "_" + bomentry.reference) == "true") {
+          bomentry.checkboxes.set(checkbox, true)
         }
-        else
-        {
-          bomentry.checkboxes.set(checkbox,false)
+        else {
+          bomentry.checkboxes.set(checkbox, false)
         }
-        console.log(typeof(bomentry.checkboxes.get(checkbox)))
-        if(bomentry.checkboxes.get(checkbox))
-        {
+        console.log(typeof (bomentry.checkboxes.get(checkbox)))
+        if (bomentry.checkboxes.get(checkbox)) {
           input.checked = true;
         }
-        else
-        {
+        else {
           input.checked = false;
         }
 
@@ -434,22 +426,24 @@ function populateBomBody() {
       }
     }
 
-
+    var clickHandler = createClickHandler(bomentry);
 
     //INFO: The lines below add the control the columns on the bom table
     // References
     td = document.createElement("TD");
-    td.innerHTML = highlightFilter(references);
+    td.innerHTML = highlightFilter(bomentry.value);
+    td.onclick = clickHandler;
     tr.appendChild(td);
     // Value
     td = document.createElement("TD");
     td.innerHTML = highlightFilter(bomentry.value);
+    td.onclick = clickHandler;
     tr.appendChild(td);
     // Footprint
     td = document.createElement("TD");
     td.innerHTML = highlightFilter(bomentry.package);
     tr.appendChild(td);
-    
+
     // Attributes
     var additionalAttributes = globalData.getAdditionalAttributes().split(',');
     for (var x of additionalAttributes) {
@@ -461,8 +455,7 @@ function populateBomBody() {
       }
     }
 
-    if(globalData.getCombineValues())
-    {
+    if (globalData.getCombineValues()) {
 
       td = document.createElement("TD");
       td.textContent = bomentry.quantity;
@@ -583,21 +576,35 @@ function changeCanvasLayout(layout) {
   populateBomTable();
 }
 
+// function populateFileSelector() {
+//   var newSelect = document.getElementById("files");
+
+//   let index = 0;
+//   for (element in ["pcbdata.json", "pcbdata.json"]) {
+//     var opt = document.createElement("option");
+//     opt.value = index;
+//     opt.innerHTML = element; // whatever property it has
+
+//     // then append it to the select element
+//     newSelect.appendChild(opt);
+//     index++;
+//   }
+// }
+
 function populateMetadata() {
-  var metadata  = pcb.GetMetadata();
-  
-  if(metadata.revision == "")
-  {
-    document.getElementById("title").innerHTML    = ""
+  var metadata = pcb.GetMetadata();
+
+  if (metadata.revision == "") {
+    document.getElementById("title").innerHTML = ""
     document.getElementById("revision").innerHTML = metadata.title;
   }
-  else{
-    document.getElementById("title").innerHTML    = metadata.title;
+  else {
+    document.getElementById("title").innerHTML = metadata.title;
     document.getElementById("revision").innerHTML = "Revision: " + metadata.revision;
   }
 
-  
-  document.getElementById("company").innerHTML  = metadata.company;
+
+  document.getElementById("company").innerHTML = metadata.company;
   document.getElementById("filedate").innerHTML = metadata.date;
   if (metadata.title != "") {
     document.title = metadata.title + " BOM";
@@ -701,20 +708,17 @@ function toggleBomCheckbox(bomrowid, checkboxnum) {
   checkbox.onchange();
 }
 
-function IsCheckboxClicked(bomrowid, checkboxname) 
-{
-    var checkboxnum = 0;
-    while (checkboxnum < globalData.getCheckboxes().length && globalData.getCheckboxes()[checkboxnum].toLowerCase() != checkboxname.toLowerCase()) 
-    {
-      checkboxnum++;
-    }
-    if (!bomrowid || checkboxnum >= globalData.getCheckboxes().length) 
-    {
-      return;
-    }
-    var bomrow = document.getElementById(bomrowid);
-    var checkbox = bomrow.childNodes[checkboxnum + 1].childNodes[0];
-    return checkbox.checked;
+function IsCheckboxClicked(bomrowid, checkboxname) {
+  var checkboxnum = 0;
+  while (checkboxnum < globalData.getCheckboxes().length && globalData.getCheckboxes()[checkboxnum].toLowerCase() != checkboxname.toLowerCase()) {
+    checkboxnum++;
+  }
+  if (!bomrowid || checkboxnum >= globalData.getCheckboxes().length) {
+    return;
+  }
+  var bomrow = document.getElementById(bomrowid);
+  var checkbox = bomrow.childNodes[checkboxnum + 1].childNodes[0];
+  return checkbox.checked;
 
 }
 
@@ -752,7 +756,7 @@ function setAdditionalAttributes(value) {
 }
 
 // XXX: None of this seems to be working. 
-document.onkeydown = function(e) {
+document.onkeydown = function (e) {
   switch (e.key) {
     case "n":
       if (document.activeElement.type == "text") {
@@ -818,11 +822,11 @@ document.onkeydown = function(e) {
 
 //XXX: I would like this to be in the html functions js file. But this function needs to be 
 //     placed here, otherwise the application rendering becomes very very weird.
-window.onload = function(e) {
-  
+window.onload = function (e) {
+
   // This function makes so that the user data for the pcb is converted to our internal structure
   pcb.OpenPcbData(pcbdata)
-  
+
 
   globalData.initStorage();
   cleanGutters();
@@ -839,6 +843,7 @@ window.onload = function(e) {
     globalData.setCanvasLayout("FB");
   }
 
+  // populateFileSelector();
   populateMetadata();
   globalData.setBomCheckboxes(globalData.readStorage("bomCheckboxes"));
   if (globalData.getBomCheckboxes() === null) {
@@ -867,7 +872,7 @@ window.onload = function(e) {
   }
   if (globalData.readStorage("hidePlacedParts") === "true") {
     document.getElementById("hidePlacedParts").checked = true;
-     globalData.setHidePlacedParts(true);
+    globalData.setHidePlacedParts(true);
   }
   if (globalData.readStorage("highlightpin1") === "true") {
     document.getElementById("highlightpin1Checkbox").checked = true;
@@ -896,7 +901,7 @@ window.onresize = render.resizeAll;
 window.matchMedia("print").addListener(render.resizeAll);
 
 module.exports = {
-  setDarkMode        , silkscreenVisible      , changeBomLayout, changeCanvasLayout,
-  setBomCheckboxes   , populateBomTable       , setFilter      , getFilter         ,
+  setDarkMode, silkscreenVisible, changeBomLayout, changeCanvasLayout,
+  setBomCheckboxes, populateBomTable, setFilter, getFilter,
   setRemoveBOMEntries, setAdditionalAttributes
 }
