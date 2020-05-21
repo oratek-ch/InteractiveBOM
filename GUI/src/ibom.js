@@ -287,8 +287,8 @@ function populateBomHeader() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Filter functions are defined here. These let the application filter 
-// elements out of the complete bom. 
+// Filter functions are defined here. These let the application filter
+// elements out of the complete bom.
 //
 // The filtering function should return true if the part should be filtered out
 // otherwise it returns false
@@ -335,7 +335,7 @@ function filterBOM_ByAttribute(part) {
       // removing beginning and trailing whitespace
       i = i.trim()
       if (part.attributes.has(i)) {
-        // Id the value is an empty string then dont filter out the entry. 
+        // Id the value is an empty string then dont filter out the entry.
         // if the value is anything then filter out the bom entry
         if (part.attributes.get(i) != "") {
           result = true;
@@ -355,14 +355,14 @@ function GenerateBOMTable() {
   // Apply attribute filter to board
   bomtableTemp = pcb.filterBOMTable(bomtableTemp, filterBOM_ByAttribute);
 
-  // If the parts are displayed one per line (not combined values), then the the bom table needs to be flattened. 
+  // If the parts are displayed one per line (not combined values), then the the bom table needs to be flattened.
   // By default the data in the json file is combined
   bomtable = globalData.getCombineValues() ? pcb.GetBOMCombinedValues(bomtableTemp) : bomtableTemp;
 
   return bomtable;
 }
 
-//TODO: This should be rewritten to interact with json using the tags instead of 
+//TODO: This should be rewritten to interact with json using the tags instead of
 //      having all of the elements hardcoded.
 function populateBomBody() {
   while (bom.firstChild) {
@@ -593,8 +593,39 @@ function createSelectSourceHandler() {
 }
 
 function populateFileSelector() {
-  var newSelect = document.getElementById("files");
-  newSelect.onchange = createSelectSourceHandler();
+  // var newSelect = document.getElementById("files");
+  // newSelect.onchange = createSelectSourceHandler();
+
+  const fileSelector = document.getElementById('files');
+  fileSelector.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file.type) {
+      console.log('Error: The File.type property does not appear to be supported on this browser.');
+      return;
+    }
+    if (!file.name.match(".json$", "i")) {
+      console.log('Error: The selected file does not appear to be an JSON file.');
+      return;
+    } else {
+      console.log('This is a JSON file');
+    }
+    const reader = new FileReader();
+    reader.addEventListener('load', event => {
+      console.log(event);
+      let src = event.target.result;
+      src = src.replace("var pcbdata =","");
+      src = eval('(' + src + ')');
+      src = JSON.stringify(src)
+
+      // src = src.replace(/\n/g,"").replace(/\t/g,"")
+      // src = JSON.stringify(src)
+      // src = src.replace(/\\\//g,"").replace("var pcbdata =","");
+      // src = eval('(' + src + ')');
+      localStorage.setItem("KiCad_HTML_BOM__#source", src);
+      location = location;
+    });
+    reader.readAsText(file);
+  });
 }
 
 function populateMetadata() {
@@ -761,7 +792,7 @@ function setAdditionalAttributes(value) {
   populateBomTable();
 }
 
-// XXX: None of this seems to be working. 
+// XXX: None of this seems to be working.
 document.onkeydown = function (e) {
   switch (e.key) {
     case "n":
@@ -826,7 +857,7 @@ document.onkeydown = function (e) {
   }
 }
 
-//XXX: I would like this to be in the html functions js file. But this function needs to be 
+//XXX: I would like this to be in the html functions js file. But this function needs to be
 //     placed here, otherwise the application rendering becomes very very weird.
 window.onload = function (e) {
 
@@ -905,7 +936,7 @@ window.onload = function (e) {
   }
   document.getElementById("boardRotation").value = boardRotation / 5;
   document.getElementById("rotationDegree").textContent = boardRotation;
-  document.getElementById("files").value = globalData.readStorage("source");
+  //document.getElementById("files").value = globalData.readStorage("source");
 
   // Triggers render
   changeBomLayout(globalData.getBomLayout());

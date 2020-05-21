@@ -74,21 +74,25 @@
         <table class="fileinfo">
           <tbody>
             <tr>
-              <td id="title" class="title" style="width: 70%">
+              <td id="logo" class="title" style="width: 25%">
+              </td>
+              <td id="title" class="title" style="width: 60%">
                 Title
               </td>
-              <td id="revision" class="title" style="width: 30%">
+              <td id="revision" class="title" style="width: 20%">
                 Revision
               </td>
             </tr>
             <tr>
+              <td id="version" style="width: 25%">
+                iBOM V1.0 (<a class="link" href="https://github.com/oratekch/InteractiveBOM">source</a>)
+              </td>
               <td id="filedate">
                 Date
               </td>
               <td id="company">
                 Eagle version
               </td>
-
             </tr>
           </tbody>
         </table>
@@ -97,11 +101,12 @@
     <div id="bot" class="split" style="height: calc(100% - 80px)">
       <div id="bomdiv" class="split split-horizontal">
         <div style="width: 100%">
-          <select id="files" class="selectbox">
+          <input type="file" id="files">
+          <!-- <select id="files" class="selectbox">
             <option value="roboteq155v7">Roboteq 155 v7</option>
             <option value="secumain93v7">SecuMain 93 v7</option>
             <option value="roboteqv9162">Roboteq 162 v9</option>
-          </select>
+          </select> -->
           <input id="filter" class="searchbox filter hideonprint" type="text" placeholder="Filter">
           <button id="clearSearch" class="btn-clear" type="button" title="Clear Filter">X</button>
         </div>

@@ -47,7 +47,7 @@ button.depressed {
 
 .dark button.depressed {
   /* This will be inverted */
-  background-color: #b3b;
+  background-color: #111;
 }
 
 button:focus {
@@ -92,7 +92,7 @@ button#bom-btn {
 }
 
 .dark .button-container {
-  
+
   : invert(1);
 }
 
@@ -596,4 +596,19 @@ mark.highlight {
   background: #0a0;
   cursor: pointer;
   margin: 0;
+}
+
+#logo {
+  background-size: 120px auto;
+  background-repeat: no-repeat;
+  background-image: url(oratek_logo_black.png);
+}
+
+.dark #logo {
+  background-image: url(oratek_logo_white.png);
+}
+
+.link {
+  text-decoration:none;
+  color: inherit;
 }

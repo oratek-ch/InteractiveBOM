@@ -4,7 +4,11 @@
   "description": "interactive bom for ECAD applications",
   "main": "ibom.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker-build": "docker build --no-cache -t oratek/interactive-bom:1.0 .",
+    "docker-push": "docker push oratek/interactive-bom:1.0",
+    "docker-run": "docker run --publish 8090:80 --detach --name ibom oratek/interactive-bom:1.0",
+    "docker-reboot": "docker stop ibom && docker rm ibom && npm run docker-build && npm run docker-run  "
   },
   "repository": {
     "type": "git",
