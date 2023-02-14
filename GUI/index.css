@@ -601,11 +601,11 @@ mark.highlight {
 #logo {
   background-size: 120px auto;
   background-repeat: no-repeat;
-  background-image: url(oratek_logo_black.png);
+  background-image: url(Atoll_logo_goldish_orange.png);
 }
 
 .dark #logo {
-  background-image: url(oratek_logo_white.png);
+  background-image: url(Atoll_logo_goldish_orange.png);
 }
 
 .link {
